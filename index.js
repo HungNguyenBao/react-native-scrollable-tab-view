@@ -42,6 +42,7 @@ const ScrollableTabView = createReactClass({
     contentProps: PropTypes.object,
     scrollWithoutAnimation: PropTypes.bool,
     locked: PropTypes.bool,
+    useViewPager: PropTypes.bool,
     prerenderingSiblingsNumber: PropTypes.number,
   },
 
@@ -56,6 +57,7 @@ const ScrollableTabView = createReactClass({
       scrollWithoutAnimation: false,
       locked: false,
       prerenderingSiblingsNumber: 0,
+      useViewPager: true,
     };
   },
 
@@ -66,7 +68,7 @@ const ScrollableTabView = createReactClass({
     let positionAndroid;
     let offsetAndroid;
 
-    if (Platform.OS === 'ios') {
+    if (Platform.OS === 'ios' || !this.props.useViewPager) {
       scrollXIOS = new Animated.Value(this.props.initialPage * containerWidth);
       const containerWidthAnimatedValue = new Animated.Value(containerWidth);
       // Need to call __makeNative manually to avoid a native animated bug. See
@@ -118,7 +120,7 @@ const ScrollableTabView = createReactClass({
   },
 
   componentWillUnmount() {
-    if (Platform.OS === 'ios') {
+    if (Platform.OS === 'ios' || !this.props.useViewPager) {
       this.state.scrollXIOS.removeAllListeners();
     } else {
       this.state.positionAndroid.removeAllListeners();
@@ -127,7 +129,7 @@ const ScrollableTabView = createReactClass({
   },
 
   goToPage(pageNumber) {
-    if (Platform.OS === 'ios') {
+    if (Platform.OS === 'ios' || !this.props.useViewPager) {
       const offset = pageNumber * this.state.containerWidth;
       if (this.scrollView) {
         this.scrollView.getNode().scrollTo({x: offset, y: 0, animated: !this.props.scrollWithoutAnimation, });
@@ -216,7 +218,7 @@ const ScrollableTabView = createReactClass({
   },
 
   renderScrollableContent() {
-    if (Platform.OS === 'ios') {
+    if (Platform.OS === 'ios' || !this.props.useViewPager) {
       const scenes = this._composeScenes();
       return <Animated.ScrollView
         horizontal
@@ -313,7 +315,7 @@ const ScrollableTabView = createReactClass({
   },
 
   _onScroll(e) {
-    if (Platform.OS === 'ios') {
+    if (Platform.OS === 'ios' || !this.props.useViewPager) {
       const offsetX = e.nativeEvent.contentOffset.x;
       if (offsetX === 0 && !this.scrollOnMountCalled) {
         this.scrollOnMountCalled = true;
@@ -333,7 +335,7 @@ const ScrollableTabView = createReactClass({
       return;
     }
     
-    if (Platform.OS === 'ios') {
+    if (Platform.OS === 'ios' || !this.props.useViewPager) {
       const containerWidthAnimatedValue = new Animated.Value(width);
       // Need to call __makeNative manually to avoid a native animated bug. See
       // https://github.com/facebook/react-native/pull/14435
